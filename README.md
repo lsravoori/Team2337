@@ -1,6 +1,6 @@
 # forthepeopleartifact
 
-A new Flutter project.
+A new Flutter project. The main file in this github can be copied into the lib folder (and replace the main.dart there). Right now it simply contains visuals and does not have any database connections.
 
 ## Getting Started
 
