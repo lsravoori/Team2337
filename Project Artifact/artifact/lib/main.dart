@@ -1,10 +1,21 @@
 import 'package:flutter/material.dart';
+//firebase core plugin
+import 'package:firebase_core/firebase_core.dart';
+//firebase configuration file
+import 'firebase_options.dart';
+
 //Hello
-void main() {
+void main() async {
   runApp(const MaterialApp(
     title: 'Navigation Basics',
     home: FirstRoute(),
   ));
+
+  //initialize
+  await Firebase.initializeApp(
+  options: DefaultFirebaseOptions.currentPlatform,
+  );
+
 }
 
 class FirstRoute extends StatelessWidget {
