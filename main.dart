@@ -1,17 +1,16 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 //firebase core plugin
 import 'package:firebase_core/firebase_core.dart';
 //firebase configuration file
 import 'firebase_options.dart';
 
-void main() {
+void main() async {
   runApp(const MyApp());
-}
-
-//initialize
   await Firebase.initializeApp(
-  options: DefaultFirebaseOptions.currentPlatform,
+    options: DefaultFirebaseOptions.currentPlatform,
   );
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -117,7 +116,7 @@ class _FirstRoute extends State<FirstRoute> {
                   padding:
                       const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                   child: const Text(
-                    'Our Life',
+                    "John's Bakery",
                     style: TextStyle(color: Colors.white, fontSize: 25.0),
                   ),
                 ),
@@ -126,7 +125,7 @@ class _FirstRoute extends State<FirstRoute> {
                     context,
                     MaterialPageRoute(
                         builder: (context) =>
-                            const BusinessInfo(title: 'Our Life')),
+                            const BusinessInfo(title: "John's Bakery")),
                   );
                 }),
             const Divider(
@@ -156,7 +155,7 @@ class BusinessInfo extends StatefulWidget {
   // in the name of the business. If you can find a way to pass in the title parameter
   // from BusinessInfo, then this string could act as the identifier.
   @override
-  State<BusinessInfo> createState() => _BusinessInfoState("tempBusinessName");
+  State<BusinessInfo> createState() => _BusinessInfoState(title);
 }
 
 class _BusinessInfoState extends State<BusinessInfo> {
@@ -164,7 +163,8 @@ class _BusinessInfoState extends State<BusinessInfo> {
   Map<String, String>? businessInfo;
   List<Widget> infoList = [];
 
-  _BusinessInfoState(this.business) {
+  _BusinessInfoState(String business) {
+    this.business = business;
     this.businessInfo = getInformation(business);
     this.infoList = createInfoWidgets(businessInfo);
   }
@@ -179,7 +179,19 @@ class _BusinessInfoState extends State<BusinessInfo> {
     // This will help prevent issues with the Business name appearing halfway down the list. We would not want the screen to display the address,
     // followed by the hours of operation, the Business Name, and then the phone number. Decide on an ordering in which information should be
     // Displayed.
+    CollectionReference businesses =
+        FirebaseFirestore.instance.collection('Businesses');
+    businesses.doc(business).get().then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        Map<String, dynamic>? documentFields =
+            documentSnapshot.data() as Map<String, dynamic>?;
+        documentFields?.forEach((key, value) {
+          retVal.addAll({"$key": documentFields["$key"]});
+        });
 
+        print(retVal);
+      }
+    });
     return retVal;
   }
 
