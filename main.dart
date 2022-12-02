@@ -6,10 +6,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
 void main() async {
-  runApp(const MyApp());
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -48,10 +48,78 @@ class FirstRoute extends StatefulWidget {
 
 class _FirstRoute extends State<FirstRoute> {
   //const FirstRoute({super.key});
+  List<Widget> list = [];
+
+  Future<QuerySnapshot> getData() async {
+    await FirebaseFirestore.instance
+        .collection('Businesses')
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        list.add(TextButton(
+            child: Container(
+              color: Colors.pinkAccent,
+              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+              child: Text(
+                doc["Name"],
+                style: TextStyle(color: Colors.white, fontSize: 25.0),
+              ),
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => BusinessInfo(title: doc["Name"])),
+              );
+            }));
+        list.add(const Padding(
+          padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+        ));
+        list.add(const Divider(
+          height: 20,
+          thickness: 3,
+          indent: 0,
+          endIndent: 0,
+          color: Colors.black,
+        )); //Divider
+      });
+    });
+    return await FirebaseFirestore.instance.collection('Businesses').get();
+  }
+
+  Scaffold makeScaffold() {
+    return Scaffold(
+      backgroundColor: Color.fromARGB(255, 234, 209, 217),
+      appBar: AppBar(
+        title: const Text(
+          'For The People: All Businesses',
+          style: TextStyle(color: Colors.white, fontSize: 40.0),
+        ),
+        backgroundColor: Color.fromARGB(255, 90, 63, 51),
+      ),
+      body: Center(
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: list),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return FutureBuilder(
+      future: getData(),
+      builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          return makeScaffold();
+        } else {
+          return Scaffold();
+        }
+      },
+    );
+
+    /*Scaffold(
       backgroundColor: Color.fromARGB(255, 234, 209, 217),
       appBar: AppBar(
         title: const Text(
@@ -64,52 +132,53 @@ class _FirstRoute extends State<FirstRoute> {
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            const Padding(
-              padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-            ),
-            //What I want here is a for loop where text buttons are created for each data entry
-            TextButton(
-                child: Container(
-                  color: Colors.pinkAccent,
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                  child: const Text(
-                    'Sue Sews',
-                    style: TextStyle(color: Colors.white, fontSize: 25.0),
+            // Column is also a layout widget. It takes a list of children and
+            // arranges them vertically. By default, it sizes itself to fit its
+            // children horizontally, and tries to be as tall as its parent.
+            //
+            // Invoke "debug painting" (press "p" in the console, choose the
+            // "Toggle Debug Paint" action from the Flutter Inspector in Android
+            // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
+            // to see the wireframe for each widget.
+            //
+            // Column has various properties to control how it sizes itself and
+            // how it positions its children. Here we use mainAxisAlignment to
+            // center the children vertically; the main axis here is the vertical
+            // axis because Columns are vertical (the cross axis would be
+            // horizontal).
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: list
+            /*const Padding(
+                padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+              ),
+              //What I want here is a for loop where text buttons are created for each data entry
+              TextButton(
+                  child: Container(
+                    color: Colors.pinkAccent,
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    child: Text(
+                      'Another Store',
+                      style: TextStyle(color: Colors.white, fontSize: 25.0),
+                    ),
                   ),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            const BusinessInfo(title: 'Sue Sews')),
-                  );
-                }),
-            const Divider(
-              height: 20,
-              thickness: 3,
-              indent: 0,
-              endIndent: 0,
-              color: Colors.black,
-            ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              BusinessInfo(title: 'Another Store')),
+                    );
+                  }),
+              const Divider(
+                height: 20,
+                thickness: 3,
+                indent: 0,
+                endIndent: 0,
+                color: Colors.black,
+              ),
+            ]
             TextButton(
                 child: Container(
                   color: Colors.blueAccent,
@@ -134,11 +203,11 @@ class _FirstRoute extends State<FirstRoute> {
               indent: 0,
               endIndent: 0,
               color: Colors.black,
+            ),*/
+
             ),
-          ],
-        ),
       ),
-    );
+    );*/
   }
 }
 
